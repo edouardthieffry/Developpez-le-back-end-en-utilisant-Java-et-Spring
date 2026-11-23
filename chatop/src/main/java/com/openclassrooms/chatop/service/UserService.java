@@ -3,6 +3,7 @@ package com.openclassrooms.chatop.service;
 import com.openclassrooms.chatop.repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.openclassrooms.chatop.repository.UserRepository;
 import com.openclassrooms.chatop.model.User;
@@ -18,4 +19,5 @@ public class UserService {
   public Optional<User> getUser(final Long id){
     return userRepository.findById(id);
   }
+
 }
