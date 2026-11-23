@@ -1,6 +1,7 @@
 package com.openclassrooms.chatop.controller;
 
 import com.openclassrooms.chatop.dto.AuthResponse;
+import com.openclassrooms.chatop.dto.LoginRequest;
 import com.openclassrooms.chatop.dto.RegisterRequest;
 import com.openclassrooms.chatop.service.AuthService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,5 +25,12 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> register(@Valid RegisterRequest request) {
     return ResponseEntity.ok(authService.register(request));
+  }
+
+  @ApiResponse(responseCode = "200", description = "Inscription réussie")
+  @ApiResponse(responseCode = "400", description = "Données invalides")
+  @PostMapping("/register")
+  public ResponseEntity<AuthResponse> login(@Valid LoginRequest request) {
+    return ResponseEntity.ok(authService.login(request));
   }
 }

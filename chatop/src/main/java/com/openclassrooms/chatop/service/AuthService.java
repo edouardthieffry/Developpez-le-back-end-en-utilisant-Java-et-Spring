@@ -1,7 +1,9 @@
 package com.openclassrooms.chatop.service;
 
 import com.openclassrooms.chatop.dto.AuthResponse;
+import com.openclassrooms.chatop.dto.LoginRequest;
 import com.openclassrooms.chatop.dto.RegisterRequest;
+import com.openclassrooms.chatop.exceptions.UnauthorizedException;
 import com.openclassrooms.chatop.model.User;
 import com.openclassrooms.chatop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,4 +31,12 @@ public class AuthService {
     return new AuthResponse(token);
   }
 
+  public AuthResponse login(LoginRequest request){
+    User loginUser = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new UnauthorizedException("User not found"));
+    if (!passwordEncoder.matches(request.getPassword(),loginUser.getPassword())){
+      throw new UnauthorizedException("Invalid password");
+    }
+    String token = jwtService.generateToken(loginUser.getEmail());
+    return AuthResponse.builder().token(token).build();
+  }
 }
