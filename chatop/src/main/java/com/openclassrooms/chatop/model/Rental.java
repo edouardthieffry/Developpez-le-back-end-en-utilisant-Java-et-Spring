@@ -1,6 +1,8 @@
 package com.openclassrooms.chatop.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,20 +16,20 @@ public class Rental {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
 
   private String name;
-
-  private Double surface;
-
-  private Double price;
-
+  private Float surface;
+  private Float price;
   private String picture;
 
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "owner_id", nullable = false)
-  private User owner;
+  private User user;
+
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 }
