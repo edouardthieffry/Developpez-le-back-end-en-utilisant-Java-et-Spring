@@ -3,6 +3,7 @@ package com.openclassrooms.chatop.service;
 import com.openclassrooms.chatop.dto.AuthResponse;
 import com.openclassrooms.chatop.dto.LoginRequest;
 import com.openclassrooms.chatop.dto.RegisterRequest;
+import com.openclassrooms.chatop.dto.UserResponse;
 import com.openclassrooms.chatop.exceptions.UnauthorizedException;
 import com.openclassrooms.chatop.model.User;
 import com.openclassrooms.chatop.repository.UserRepository;
@@ -24,7 +25,7 @@ public class AuthService {
     User newUser = new User();
     newUser.setEmail(request.getEmail());
     newUser.setName(request.getName());
-    newUser.setPassword(passwordEncoder.encode(passwordEncoder.encode(request.getPassword())));
+    newUser.setPassword(passwordEncoder.encode(request.getPassword()));
     userRepository.save(newUser);
 
     String token = jwtService.generateToken(newUser.getEmail());
@@ -39,4 +40,10 @@ public class AuthService {
     String token = jwtService.generateToken(loginUser.getEmail());
     return AuthResponse.builder().token(token).build();
   }
+
+  public UserResponse getUser(String email){
+    User getUser = userRepository.findByEmail(email).orElseThrow(()-> new UnauthorizedException("User not found"));;
+    return UserResponse.from(getUser);
+  }
+
 }
