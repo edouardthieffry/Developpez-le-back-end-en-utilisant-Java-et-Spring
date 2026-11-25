@@ -1,18 +1,26 @@
 package com.openclassrooms.chatop.controller;
 
+import com.openclassrooms.chatop.dto.MessageResponse;
+import com.openclassrooms.chatop.dto.RentalCreateRequest;
 import com.openclassrooms.chatop.dto.RentalResponse;
 import com.openclassrooms.chatop.service.RentalService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.Min;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -34,5 +42,13 @@ public class RentalController {
   public ResponseEntity<RentalResponse> getOne(@PathVariable Integer id){
     RentalResponse rentalResponse = rentalService.getRentalById(id).orElseThrow(()->new RuntimeException("Location non trouvée ou utilisateur non authentifié"));
     return ResponseEntity.ok(rentalResponse);
+  }
+
+  @PostMapping(consumes = "multipart/form-data")
+  public ResponseEntity<MessageResponse> createRental(RentalCreateRequest request, @AuthenticationPrincipal Jwt jwt
+  ) throws IOException {
+    String email = jwt.getSubject();
+    rentalService.rentalCreate(request, email);
+    return ResponseEntity.ok(new MessageResponse("Location créée !"));
   }
 }
