@@ -30,7 +30,8 @@ public class SpringSecurityConfig {
       .authorizeHttpRequests(auth -> auth
       .requestMatchers(
         "/api/auth/register",
-        "/api/auth/login"
+        "/api/auth/login",
+        "/api/images/**"
       ).permitAll()
       .anyRequest().authenticated()
       )
