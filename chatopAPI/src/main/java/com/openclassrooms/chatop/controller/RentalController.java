@@ -5,11 +5,13 @@ import com.openclassrooms.chatop.dto.RentalCreateRequest;
 import com.openclassrooms.chatop.dto.RentalResponse;
 import com.openclassrooms.chatop.dto.RentalsResponse;
 import com.openclassrooms.chatop.dto.RentalUpdateRequest;
+import com.openclassrooms.chatop.exceptions.NotFoundException;
 import com.openclassrooms.chatop.service.RentalService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/rentals")
@@ -28,7 +31,7 @@ public class RentalController {
 
   @ApiResponse(responseCode = "200", description = "Liste des locations récupérée")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
-  @Operation(summary = "Lister les locations")
+  @Operation(summary = "Lister les locations", description = "Retourne toutes les locations. Un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @GetMapping
   public ResponseEntity<RentalsResponse> getAll(){
     return ResponseEntity.ok(new RentalsResponse(rentalService.getAllRentals()));
@@ -37,10 +40,11 @@ public class RentalController {
   @ApiResponse(responseCode = "200", description = "Détail de la location récupéré")
   @ApiResponse(responseCode = "404", description = "Location introuvable")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
-  @Operation(summary = "Consulter une location")
+  @Operation(summary = "Consulter une location", description = "Retourne le détail d'une location. Un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @GetMapping("/{id}")
-  public ResponseEntity<RentalResponse> getOne(@PathVariable Integer id){
-    RentalResponse rentalResponse = rentalService.getRentalById(id).orElseThrow(()->new RuntimeException("Location non trouvée ou utilisateur non authentifié"));
+  public ResponseEntity<RentalResponse> getOne(@Parameter(description = "Identifiant de la location", example = "1") @PathVariable Integer id){
+    RentalResponse rentalResponse = rentalService.getRentalById(id)
+      .orElseThrow(() -> new NotFoundException("Location non trouvée"));
     return ResponseEntity.ok(rentalResponse);
   }
 
@@ -48,20 +52,39 @@ public class RentalController {
   @ApiResponse(responseCode = "200", description = "Location créée")
   @ApiResponse(responseCode = "400", description = "Données invalides")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @ApiResponse(responseCode = "500", description = "Erreur interne lors du stockage de l'image")
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+    description = "Champs de la location et image envoyés en multipart/form-data",
+    required = true,
+    content = @io.swagger.v3.oas.annotations.media.Content(
+      mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+      schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = RentalCreateRequest.class)
+    )
+  )
   @PostMapping(consumes = "multipart/form-data")
-  public ResponseEntity<MessageResponse> createRental(RentalCreateRequest request, @AuthenticationPrincipal Jwt jwt
+  public ResponseEntity<MessageResponse> createRental(@Valid @ModelAttribute RentalCreateRequest request, @AuthenticationPrincipal Jwt jwt
   ) throws IOException {
     String email = jwt.getSubject();
     rentalService.rentalCreate(request, email);
     return ResponseEntity.ok(new MessageResponse("Location créée !"));
   }
-  @Operation(summary = "Modifier une location", description = "Seul le propriétaire peut modifier la location.", security = @SecurityRequirement(name = "bearerAuth"))
+  @Operation(summary = "Modifier une location", description = "Modifie une location en multipart/form-data. Seul son propriétaire peut la modifier ; un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Location modifiée")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié ou non propriétaire")
+  @ApiResponse(responseCode = "403", description = "L'utilisateur connecté n'est pas le propriétaire")
+  @ApiResponse(responseCode = "404", description = "Location introuvable")
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+    description = "Champs modifiés envoyés en multipart/form-data",
+    required = true,
+    content = @io.swagger.v3.oas.annotations.media.Content(
+      mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+      schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = RentalUpdateRequest.class)
+    )
+  )
   @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageResponse> update(
-    Integer id,
-    RentalUpdateRequest request,
+    @Parameter(description = "Identifiant de la location", example = "1") @PathVariable Integer id,
+    @Valid @ModelAttribute RentalUpdateRequest request,
     @AuthenticationPrincipal Jwt jwt
   ) {
     String email = jwt.getSubject();

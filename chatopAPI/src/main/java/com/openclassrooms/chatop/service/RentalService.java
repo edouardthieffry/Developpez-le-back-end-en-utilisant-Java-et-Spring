@@ -4,13 +4,14 @@ import com.openclassrooms.chatop.dto.RentalCreateRequest;
 import com.openclassrooms.chatop.dto.RentalResponse;
 import com.openclassrooms.chatop.dto.RentalUpdateRequest;
 import com.openclassrooms.chatop.exceptions.UnauthorizedException;
+import com.openclassrooms.chatop.exceptions.NotFoundException;
+import com.openclassrooms.chatop.exceptions.ForbiddenException;
 import com.openclassrooms.chatop.model.Rental;
 import com.openclassrooms.chatop.model.User;
 import com.openclassrooms.chatop.repository.RentalRepository;
 import com.openclassrooms.chatop.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.rmi.UnexpectedException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,10 +60,10 @@ public class RentalService {
   }
   public void updateRental(Integer id,RentalUpdateRequest request, String ownerEmail){
     Rental rental = rentalRepository.findById(id)
-      .orElseThrow(() -> new UnauthorizedException("Rental non trouvée"));
+      .orElseThrow(() -> new NotFoundException("Location non trouvée."));
 
     if (!rental.getUser().getEmail().equals(ownerEmail)) {
-      throw new UnauthorizedException("Vous n'êtes pas authorisé a modifié ce Rental");
+      throw new ForbiddenException("Vous n'êtes pas autorisé à modifier cette location.");
     }
 
     rental.setName(request.getName());

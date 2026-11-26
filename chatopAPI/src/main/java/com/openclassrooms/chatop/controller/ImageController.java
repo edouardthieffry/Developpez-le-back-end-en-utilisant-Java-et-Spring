@@ -31,11 +31,14 @@ public class ImageController {
     this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
   }
 
-  @Operation(summary = "Récupérer une image")
+  @Operation(summary = "Récupérer une image", description = "Retourne l'image publique identifiée par son nom de fichier.")
   @ApiResponse(responseCode = "200", description = "Image retournée")
   @ApiResponse(responseCode = "404", description = "Image introuvable")
   @GetMapping("/{filename:.+}")
-  public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
+  public ResponseEntity<Resource> getImage(
+    @io.swagger.v3.oas.annotations.Parameter(description = "Nom du fichier image, extension comprise", example = "photo.jpg")
+    @PathVariable String filename
+  ) throws IOException {
     Path imagePath = uploadDirectory.resolve(filename).normalize();
     if (!imagePath.startsWith(uploadDirectory)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
