@@ -22,11 +22,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class MessageController {
   private final MessageService messageService;
 
+  /** Enregistre un message pour l'utilisateur et la location indiqués. */
   @Operation(summary = "Envoyer un message", description = "Enregistre un message à partir d'un corps JSON.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Message envoyé")
   @ApiResponse(responseCode = "400", description = "Données invalides")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
   @ApiResponse(responseCode = "500", description = "Erreur interne")
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+    description = "Contenu du message et identifiants utilisateur/location au format JSON",
+    required = true,
+    content = @io.swagger.v3.oas.annotations.media.Content(
+      mediaType = "application/json",
+      schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = MessageRequest.class)
+    )
+  )
   @PostMapping
   public ResponseEntity<MessageResponse> create(@Valid @RequestBody MessageRequest request) {
     messageService.createMessage(request);

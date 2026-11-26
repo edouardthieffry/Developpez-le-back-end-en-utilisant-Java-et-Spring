@@ -31,9 +31,11 @@ public class ImageController {
     this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
   }
 
+  /** Retourne une image publique à partir de son nom de fichier. */
   @Operation(summary = "Récupérer une image", description = "Retourne l'image publique identifiée par son nom de fichier.")
   @ApiResponse(responseCode = "200", description = "Image retournée")
   @ApiResponse(responseCode = "404", description = "Image introuvable")
+  @ApiResponse(responseCode = "500", description = "Erreur lors de la lecture de l'image")
   @GetMapping("/{filename:.+}")
   public ResponseEntity<Resource> getImage(
     @io.swagger.v3.oas.annotations.Parameter(description = "Nom du fichier image, extension comprise", example = "photo.jpg")

@@ -29,17 +29,21 @@ import jakarta.validation.Valid;
 public class RentalController {
   private final RentalService rentalService;
 
+  /** Retourne la liste des locations disponibles. */
   @ApiResponse(responseCode = "200", description = "Liste des locations récupérée")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @ApiResponse(responseCode = "500", description = "Erreur interne")
   @Operation(summary = "Lister les locations", description = "Retourne toutes les locations. Un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @GetMapping
   public ResponseEntity<RentalsResponse> getAll(){
     return ResponseEntity.ok(new RentalsResponse(rentalService.getAllRentals()));
   }
 
+  /** Recherche une location à partir de son identifiant. */
   @ApiResponse(responseCode = "200", description = "Détail de la location récupéré")
   @ApiResponse(responseCode = "404", description = "Location introuvable")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @ApiResponse(responseCode = "500", description = "Erreur interne")
   @Operation(summary = "Consulter une location", description = "Retourne le détail d'une location. Un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @GetMapping("/{id}")
   public ResponseEntity<RentalResponse> getOne(@Parameter(description = "Identifiant de la location", example = "1") @PathVariable Integer id){
@@ -48,6 +52,7 @@ public class RentalController {
     return ResponseEntity.ok(rentalResponse);
   }
 
+  /** Crée une location à partir des champs et de la photo reçus en multipart. */
   @Operation(summary = "Créer une location", description = "La création nécessite un JWT et une image au format multipart/form-data.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Location créée")
   @ApiResponse(responseCode = "400", description = "Données invalides")
@@ -68,11 +73,14 @@ public class RentalController {
     rentalService.rentalCreate(request, email);
     return ResponseEntity.ok(new MessageResponse("Location créée !"));
   }
+  /** Met à jour une location existante ; seul son propriétaire peut la modifier. */
   @Operation(summary = "Modifier une location", description = "Modifie une location en multipart/form-data. Seul son propriétaire peut la modifier ; un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Location modifiée")
-  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié ou non propriétaire")
+  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
   @ApiResponse(responseCode = "403", description = "L'utilisateur connecté n'est pas le propriétaire")
   @ApiResponse(responseCode = "404", description = "Location introuvable")
+  @ApiResponse(responseCode = "400", description = "Données de modification invalides")
+  @ApiResponse(responseCode = "500", description = "Erreur interne")
   @io.swagger.v3.oas.annotations.parameters.RequestBody(
     description = "Champs modifiés envoyés en multipart/form-data",
     required = true,

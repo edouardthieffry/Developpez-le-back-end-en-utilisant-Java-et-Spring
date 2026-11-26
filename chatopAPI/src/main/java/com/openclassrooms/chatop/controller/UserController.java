@@ -21,10 +21,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 @Tag(name = "Utilisateurs", description = "Consultation des utilisateurs")
 public class UserController {
   private final UserService userService;
+  /** Retourne le profil public correspondant à l'identifiant fourni. */
   @Operation(summary = "Consulter un utilisateur", description = "Retourne le profil public d'un utilisateur. Un JWT Bearer valide est requis.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Utilisateur trouvé")
   @ApiResponse(responseCode = "404", description = "Utilisateur introuvable")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @ApiResponse(responseCode = "500", description = "Erreur interne")
   @GetMapping("/{id}")
   public ResponseEntity<UserResponse> getUserById(@Parameter(description = "Identifiant de l'utilisateur", example = "1") @PathVariable Integer id) {
 
