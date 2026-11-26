@@ -1,6 +1,6 @@
 # Chatop
 
-Le dépôt contient le front Angular dans `front-end/` et l'API Spring Boot dans `chatop/`.
+Le dépôt contient le front Angular dans `front-end/` et l'API Spring Boot dans `chatopAPI`.
 
 ## Front-end
 
@@ -16,7 +16,7 @@ L'application Angular est ensuite disponible sur `http://localhost:4200/`.
 
 ## API
 
-L'API Spring Boot se trouve dans `chatop/`. Consultez `chatop/pom.xml` pour sa configuration Maven.
+L'API Spring Boot se trouve dans `chatopAPI`. Consultez `chatopAPI` pour sa configuration Maven.
 
 ## Ressources
 
