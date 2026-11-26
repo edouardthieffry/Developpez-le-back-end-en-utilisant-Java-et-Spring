@@ -4,6 +4,7 @@ import com.openclassrooms.chatop.dto.AuthResponse;
 import com.openclassrooms.chatop.dto.LoginRequest;
 import com.openclassrooms.chatop.dto.RegisterRequest;
 import com.openclassrooms.chatop.dto.UserResponse;
+import com.openclassrooms.chatop.exceptions.ConflictException;
 import com.openclassrooms.chatop.exceptions.UnauthorizedException;
 import com.openclassrooms.chatop.model.User;
 import com.openclassrooms.chatop.repository.UserRepository;
@@ -20,7 +21,7 @@ public class AuthService {
 
   public AuthResponse register(RegisterRequest request){
     if (userRepository.existsByEmail(request.getEmail())){
-      //send error
+      throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
     }
     User newUser = new User();
     newUser.setEmail(request.getEmail());
