@@ -3,6 +3,7 @@ package com.openclassrooms.chatop.controller;
 import com.openclassrooms.chatop.dto.MessageResponse;
 import com.openclassrooms.chatop.dto.RentalCreateRequest;
 import com.openclassrooms.chatop.dto.RentalResponse;
+import com.openclassrooms.chatop.dto.RentalsResponse;
 import com.openclassrooms.chatop.dto.RentalUpdateRequest;
 import com.openclassrooms.chatop.service.RentalService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,9 +15,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/rentals")
@@ -27,8 +25,8 @@ public class RentalController {
   @ApiResponse(responseCode = "200", description = "Liste des locations récupérée")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
   @GetMapping
-  public ResponseEntity<List> getAll(){
-    return ResponseEntity.ok(rentalService.getAllRentals());
+  public ResponseEntity<RentalsResponse> getAll(){
+    return ResponseEntity.ok(new RentalsResponse(rentalService.getAllRentals()));
   }
 
   @ApiResponse(responseCode = "200", description = "Détail de la location récupéré")

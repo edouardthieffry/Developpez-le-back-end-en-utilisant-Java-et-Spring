@@ -4,16 +4,15 @@ import com.openclassrooms.chatop.dto.AuthResponse;
 import com.openclassrooms.chatop.dto.LoginRequest;
 import com.openclassrooms.chatop.dto.RegisterRequest;
 import com.openclassrooms.chatop.dto.UserResponse;
+import com.openclassrooms.chatop.repository.UserRepository;
 import com.openclassrooms.chatop.service.AuthService;
+import com.openclassrooms.chatop.service.UserService;
+import com.openclassrooms.chatop.model.User;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 
 @RestController
@@ -22,6 +21,7 @@ import org.springframework.security.core.Authentication;
 public class AuthController {
 
   private final AuthService authService;
+  private final UserService userService;
 
   @ApiResponse(responseCode = "200", description = "Inscription réussie")
   @ApiResponse(responseCode = "400", description = "Données invalides")
