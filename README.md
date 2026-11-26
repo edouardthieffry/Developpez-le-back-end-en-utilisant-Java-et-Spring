@@ -1,55 +1,25 @@
-# Estate
+# Chatop
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+Le dépôt contient le front Angular dans `front-end/` et l'API Spring Boot dans `chatop/`.
 
-## Start the project
+## Front-end
 
-Git clone:
+Depuis la racine du dépôt :
 
-> git clone https://github.com/OpenClassrooms-Student-Center/P3-Full-Stack-portail-locataire
+```sh
+cd front-end
+npm install
+npm run start
+```
 
-Go inside folder:
+L'application Angular est ensuite disponible sur `http://localhost:4200/`.
 
-> cd P3-Full-Stack-portail-locataire
+## API
 
-Install dependencies:
-
-> npm install
-
-Launch Front-end:
-
-> npm run start;
-
+L'API Spring Boot se trouve dans `chatop/`. Consultez `chatop/pom.xml` pour sa configuration Maven.
 
 ## Ressources
 
-### Mockoon env
-
-Download Mockoon here: https://mockoon.com/download/
-
-After installing you could load the environement
-
-> ressources/mockoon/rental-oc.json
-
-directly inside Mockoon 
-
-> File > Open environmement
-
-For launching the Mockoon server click on play bouton
-
-Mockoon documentation: https://mockoon.com/docs/latest/about/
-
-### Postman collection
-
-For Postman import the collection
-
-> ressources/postman/rental.postman_collection.json 
-
-by following the documentation: 
-
-https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman
-
-
-### MySQL
-
-SQL script for creating the schema is available `ressources/sql/script.sql`
+- Configuration Mockoon : `ressources/mockoon/rental-oc.json`
+- Script SQL : `ressources/sql/script.sql`
+- Collection Postman : `ressources/postman/rental.postman_collection.json`
