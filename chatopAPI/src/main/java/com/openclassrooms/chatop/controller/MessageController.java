@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,14 +24,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class MessageController {
   private final MessageService messageService;
 
-  /** Enregistre un message pour l'utilisateur et la location indiqués. */
-  @Operation(summary = "Envoyer un message", description = "Enregistre un message à partir d'un corps JSON.", security = @SecurityRequirement(name = "bearerAuth"))
+  /** Enregistre un message pour l'utilisateur authentifié et la location indiquée. */
+  @Operation(summary = "Envoyer un message", description = "Enregistre un message pour l'utilisateur identifié par le JWT et la location indiquée.", security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponse(responseCode = "200", description = "Message envoyé")
   @ApiResponse(responseCode = "400", description = "Données invalides")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @ApiResponse(responseCode = "403", description = "Le user_id fourni ne correspond pas à l'utilisateur authentifié")
   @ApiResponse(responseCode = "500", description = "Erreur interne")
   @io.swagger.v3.oas.annotations.parameters.RequestBody(
-    description = "Contenu du message et identifiants utilisateur/location au format JSON",
+    description = "Contenu du message et identifiants utilisateur/location au format JSON. Le user_id doit correspondre au JWT.",
     required = true,
     content = @io.swagger.v3.oas.annotations.media.Content(
       mediaType = "application/json",
@@ -37,8 +40,9 @@ public class MessageController {
     )
   )
   @PostMapping
-  public ResponseEntity<MessageResponse> create(@Valid @RequestBody MessageRequest request) {
-    messageService.createMessage(request);
+  public ResponseEntity<MessageResponse> create(@Valid @RequestBody MessageRequest request,
+                                                @AuthenticationPrincipal Jwt jwt) {
+    messageService.createMessage(request, jwt.getSubject());
     return ResponseEntity.ok(new MessageResponse("Message send with success"));
   }
 }

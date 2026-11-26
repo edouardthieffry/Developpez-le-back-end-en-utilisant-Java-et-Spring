@@ -18,7 +18,7 @@ public class MessageRequest {
   private String message;
 
   @NotNull
-  @Schema(description = "Identifiant de l'utilisateur", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+  @Schema(description = "Identifiant de l'utilisateur authentifié par le JWT", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
   private Integer user_id;
 
   @NotNull
