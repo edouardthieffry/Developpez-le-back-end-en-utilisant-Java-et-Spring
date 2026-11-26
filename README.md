@@ -7,23 +7,21 @@ Chatop est une application de locations immobilières composée d'un front-end A
 - `front-end/` : application Angular.
 - `chatopAPI/` : API Java/Spring Boot.
 - `ressources/sql/script.sql` : création des tables MySQL.
-- `ressources/postman/rental.postman_collection.json` : collection Postman.
-- `ressources/mockoon/rental-oc.json` : configuration Mockoon.
+- [`ressources/postman/rental.postman_collection.json`](ressources/postman/rental.postman_collection.json) : collection Postman pour tester les routes de l'API.
+- [`ressources/mockoon/rental-oc.json`](ressources/mockoon/rental-oc.json) : configuration de l'API simulée avec Mockoon.
 
 Les étapes ci-dessous installent et démarrent l'application avec le backend Spring Boot et MySQL. Mockoon n'est pas requis.
 
 ## Prérequis
 
 - Git.
-- Node.js 16.10 ou supérieur dans la branche 16, et npm. Le projet utilise Angular 14.1.3 ; sa matrice de compatibilité indique Node.js `^14.15.0` ou `^16.10.0` et TypeScript `>=4.6.2 <4.9.0` pour Angular 14.1. [Matrice officielle Angular](https://angular.dev/reference/versions).
-- Java JDK 17. Le `pom.xml` cible Java 17.
+- Node.js 16.10 ou supérieur
+- Java JDK 17
 - MySQL Server et le client en ligne de commande `mysql` (MySQL 8 recommandé).
-- Un accès réseau lors de la première installation pour télécharger les dépendances npm et Maven.
 
 Vérifier les outils :
 
 ```sh
-git --version
 node --version
 npm --version
 java -version
@@ -64,14 +62,6 @@ mysql -u chatop_user -p chatop_db < ressources/sql/script.sql
 
 Entrer le mot de passe défini lors de `CREATE USER`. Le script crée les tables `USERS`, `RENTALS` et `MESSAGES` ainsi que leurs index et clés étrangères. Il ne crée aucun compte ni aucune location ; la base est vide après l'import.
 
-Vérifier la création des tables :
-
-```sh
-mysql -u chatop_user -p -D chatop_db -e "SHOW TABLES;"
-```
-
-> Le script SQL est destiné à une base neuve. Ne pas le relancer sur une base déjà initialisée, car les tables existent déjà.
-
 ## 3. Configurer et démarrer l'API Spring Boot
 
 La configuration de l'API est dans `chatopAPI/src/main/resources/application.properties` :
@@ -109,27 +99,47 @@ Set-Location chatopAPI
 .\mvnw.cmd spring-boot:run
 ```
 
+OU 
+
+### IntelJ idea
+
+Aller dans Run>EditConfiguration et y ajouter les variables d'environnement
+
 La clé ci-dessus est uniquement un exemple pour le développement local. Utiliser une clé privée longue et aléatoire, et conserver la même clé tant que des JWT émis par ce backend doivent rester valides. Ne pas publier de vrais secrets dans Git.
 
-Le Maven Wrapper télécharge Maven et les dépendances au premier lancement. Attendre dans la console le message indiquant que Spring Boot a démarré. Garder ce terminal ouvert. Hibernate est configuré avec `ddl-auto=update` : il met à jour les tables au démarrage sans remplacer le script SQL initial.
+## 4. Lancement de l'application
 
-L'API écoute sur `http://localhost:3001`. La documentation OpenAPI/Swagger est disponible à `http://localhost:3001/swagger-ui/index.html` si le démarrage a réussi.
+### Backend (Spring Boot)
 
-## 4. Installer et démarrer le front Angular
+#### Via IntelliJ IDEA (recommandé)
 
-Dans un second terminal, depuis la racine du dépôt :
+1. Ouvrir le projet `chatopAPI` dans IntelliJ IDEA.
+2. Dans la configuration d'exécution, renseigner les variables d'environnement décrites à l'étape 3 (`DB_USERNAME`, `DB_PASSWORD` et `JWT_KEY`, ainsi que les variables facultatives).
+3. Lancer la classe principale `ChatopApplication.java` avec le bouton **Run**.
+
+#### Via Maven
+
+Depuis le dossier `chatopAPI`, après avoir configuré les mêmes variables d'environnement :
+
+```sh
+mvn spring-boot:run
+```
+
+Avec le Maven Wrapper fourni, on peut aussi exécuter `./mvnw spring-boot:run` (macOS/Linux) ou `mvnw.cmd spring-boot:run` (Windows).
+
+L'API sera accessible à l'adresse [http://localhost:3001](http://localhost:3001).
+
+### Frontend (Angular)
+
+Dans un autre terminal, depuis la racine du dépôt :
 
 ```sh
 cd front-end
-npm ci
-npm start
+npm install
+npm run start
 ```
 
-`npm ci` installe les versions inscrites dans `package-lock.json`. Le serveur Angular démarre sur `http://localhost:4200`.
-
-En développement, `front-end/src/proxy.config.json` transmet les requêtes `/api/*` vers `http://localhost:3001`. Il faut donc laisser le backend actif pendant l'utilisation du front. Le port `4200` dans le navigateur est normal : le proxy transmet ensuite la requête à l'API sur le port `3001`.
-
-Ouvrir [http://localhost:4200](http://localhost:4200) dans le navigateur. `npm run build` construit les fichiers de production, mais le proxy de développement Angular ne fait pas partie de cette construction ; en production, configurer un reverse proxy ou une URL d'API appropriée.
+Le frontend sera accessible à l'adresse [http://localhost:4200](http://localhost:4200). Laisser le backend actif : le proxy Angular transmet les requêtes `/api/*` au backend sur le port `3001`.
 
 ## 5. Créer un compte et des locations de démonstration
 
@@ -146,9 +156,9 @@ Corps JSON :
 
 ```json
 {
-  "name": "Utilisateur de démonstration",
-  "email": "demo@example.com",
-  "password": "DemoPassword123!"
+  "name": "test Test",
+  "email": "test@test.com",
+  "password": "test!31"
 }
 ```
 
@@ -161,7 +171,7 @@ La réponse contient un JWT sous la forme `{"token":"..."}`. Pour les requêtes 
 }
 ```
 
-Pour ajouter une location de démonstration, envoyer `POST http://localhost:3001/api/rentals` avec le même Bearer Token. Dans **Body → form-data**, ajouter les champs suivants :
+Pour ajouter une location de démonstration, envoyer `POST http://localhost:3001/api/rentals` avec le Bearer Token récupéré lors de la précedente commande. Dans **Body → form-data**, ajouter les champs suivants :
 
 | Clé | Type | Exemple |
 | --- | --- | --- |
@@ -209,6 +219,17 @@ Après inscription ou connexion dans le front, l'application redirige vers la li
 | `POST` | `/api/messages` | Bearer JWT | Envoyer un message au format JSON. |
 
 Les images accessibles par `/api/images/{nom-de-fichier}` ne nécessitent pas de JWT.
+
+## Documentation API (Swagger)
+
+L'API est documentée avec Swagger UI via Springdoc OpenAPI.
+
+Une fois le backend lancé, la documentation interactive est accessible à l'adresse suivante : [http://localhost:3001/api/docs](http://localhost:3001/api/docs).
+
+## Ressources Mockoon et Postman
+
+- **Postman** : importer [`ressources/postman/rental.postman_collection.json`](ressources/postman/rental.postman_collection.json) dans Postman pour retrouver les requêtes de l'API.
+- **Mockoon** : importer [`ressources/mockoon/rental-oc.json`](ressources/mockoon/rental-oc.json) dans Mockoon pour charger la configuration du serveur simulé.
 
 ## Arrêt et redémarrage
 
