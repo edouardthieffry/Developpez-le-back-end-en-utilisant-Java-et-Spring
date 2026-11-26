@@ -7,6 +7,9 @@ import com.openclassrooms.chatop.dto.RentalsResponse;
 import com.openclassrooms.chatop.dto.RentalUpdateRequest;
 import com.openclassrooms.chatop.service.RentalService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +22,32 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/rentals")
 @RequiredArgsConstructor
+@Tag(name = "Locations", description = "Consultation et gestion des locations")
 public class RentalController {
   private final RentalService rentalService;
 
   @ApiResponse(responseCode = "200", description = "Liste des locations récupérée")
   @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @Operation(summary = "Lister les locations")
   @GetMapping
   public ResponseEntity<RentalsResponse> getAll(){
     return ResponseEntity.ok(new RentalsResponse(rentalService.getAllRentals()));
   }
 
   @ApiResponse(responseCode = "200", description = "Détail de la location récupéré")
-  @ApiResponse(responseCode = "401", description = "Location non trouvée ou Utilisateur non authentifié")
+  @ApiResponse(responseCode = "404", description = "Location introuvable")
+  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
+  @Operation(summary = "Consulter une location")
   @GetMapping("/{id}")
   public ResponseEntity<RentalResponse> getOne(@PathVariable Integer id){
     RentalResponse rentalResponse = rentalService.getRentalById(id).orElseThrow(()->new RuntimeException("Location non trouvée ou utilisateur non authentifié"));
     return ResponseEntity.ok(rentalResponse);
   }
 
+  @Operation(summary = "Créer une location", description = "La création nécessite un JWT et une image au format multipart/form-data.", security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponse(responseCode = "200", description = "Location créée")
+  @ApiResponse(responseCode = "400", description = "Données invalides")
+  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
   @PostMapping(consumes = "multipart/form-data")
   public ResponseEntity<MessageResponse> createRental(RentalCreateRequest request, @AuthenticationPrincipal Jwt jwt
   ) throws IOException {
@@ -44,6 +55,9 @@ public class RentalController {
     rentalService.rentalCreate(request, email);
     return ResponseEntity.ok(new MessageResponse("Location créée !"));
   }
+  @Operation(summary = "Modifier une location", description = "Seul le propriétaire peut modifier la location.", security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponse(responseCode = "200", description = "Location modifiée")
+  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié ou non propriétaire")
   @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MessageResponse> update(
     Integer id,

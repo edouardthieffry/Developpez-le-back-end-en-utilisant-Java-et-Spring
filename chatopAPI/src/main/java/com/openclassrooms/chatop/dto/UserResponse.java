@@ -3,7 +3,9 @@ package com.openclassrooms.chatop.dto;
 import com.openclassrooms.chatop.model.User;
 
 import java.time.LocalDateTime;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Informations publiques d'un utilisateur")
 public record UserResponse(
   Integer id,
   String name,

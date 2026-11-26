@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,6 +22,7 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/images")
+@Tag(name = "Images", description = "Accès aux images des locations")
 public class ImageController {
 
   private final Path uploadDirectory;
@@ -27,6 +31,9 @@ public class ImageController {
     this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
   }
 
+  @Operation(summary = "Récupérer une image")
+  @ApiResponse(responseCode = "200", description = "Image retournée")
+  @ApiResponse(responseCode = "404", description = "Image introuvable")
   @GetMapping("/{filename:.+}")
   public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
     Path imagePath = uploadDirectory.resolve(filename).normalize();

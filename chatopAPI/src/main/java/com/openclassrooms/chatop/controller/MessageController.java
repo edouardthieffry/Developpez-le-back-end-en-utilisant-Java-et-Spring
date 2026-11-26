@@ -11,13 +11,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
+@Tag(name = "Messages", description = "Envoi de messages au sujet des locations")
 public class MessageController {
   private final MessageService messageService;
 
+  @Operation(summary = "Envoyer un message", security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponse(responseCode = "200", description = "Message envoyé")
+  @ApiResponse(responseCode = "400", description = "Données invalides")
+  @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié")
   @PostMapping
   public ResponseEntity<MessageResponse> create(@Valid @RequestBody MessageRequest request) throws BadRequestException {
     messageService.createMessage(request);
