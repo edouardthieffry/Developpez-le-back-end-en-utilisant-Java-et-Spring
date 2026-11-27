@@ -34,9 +34,10 @@ public class AuthService {
   }
 
   public AuthResponse login(LoginRequest request){
-    User loginUser = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new UnauthorizedException("User not found"));
+    User loginUser = userRepository.findByEmail(request.getEmail())
+      .orElseThrow(() -> new UnauthorizedException("Adresse e-mail ou mot de passe incorrect."));
     if (!passwordEncoder.matches(request.getPassword(),loginUser.getPassword())){
-      throw new UnauthorizedException("Invalid password");
+      throw new UnauthorizedException("Adresse e-mail ou mot de passe incorrect.");
     }
     String token = jwtService.generateToken(loginUser.getEmail());
     return AuthResponse.builder().token(token).build();

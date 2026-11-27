@@ -33,4 +33,3 @@ Thumbs.db
 # Environment and application configuration
 .env
 .env.*
-application.properties
